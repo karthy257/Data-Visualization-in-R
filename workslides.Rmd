@@ -1,0 +1,245 @@
+---
+title: "Workshop on Data Visualization in R"
+author: "Karthy"
+date: "2/25/2020"
+output:
+  slidy_presentation:
+    keep_md: yes
+  ioslides_presentation: default
+  powerpoint_presentation: default
+  beamer_presentation: 
+    fonttheme: professionalfonts
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Data Visualization in R
+
+- One Variable Visualization 
+
+
+- Two Variable Visualization 
+
+
+
+- Correlation Relationship 
+
+
+- Regression Analysis Relationship
+
+
+## Loading major libraries
+These are the basic libraries in R visualization.
+```{r  echo=TRUE, message=FALSE, warning=FALSE}
+library(ggplot2)
+
+library(lattice)
+
+library(latticeExtra)
+
+library(ggpubr)
+
+library(scatterplot3d)
+
+library(gridExtra)
+
+library(ggfortify)
+
+##shiny::runGitHub("cardiomoon/ggplot2new")
+```
+
+## Loading major libraries
+```{r  echo=TRUE, message=FALSE, warning=FALSE}
+library(ggmosaic)
+
+library(ggeffects)
+
+library(GGally)
+
+library(ggcorrplot)
+
+library(poliscidata)
+
+library(wooldridge)
+
+library(easystats)
+```
+
+
+## One Variable Visualization
+
+- For continuous variable: histogram, frequency plot, and density plots
+- Examples: Age, income, gdp....
+  
+  
+  
+- For Discrete Variable:bargraph
+  
+- Examples: gender, race, conflict, civil war.....
+  
+## R Code for One Variable Visualization
+```{r R code, echo=TRUE, message=FALSE, warning=FALSE}
+
+## Histogram in ggplot package
+ggplot(data = diamonds, aes(price)) + geom_histogram()
+
+## Histogram varied based on the cut of the diamonds (group)
+ggplot(data = diamonds, aes(price, color = cut)) + geom_histogram()
+
+
+## Densityplot in ggplot package
+ggplot(data = diamonds, aes(price)) + geom_density()
+
+## Densityplot varied based on the cut of the diamonds (group)
+ggplot(data = diamonds, aes(price, color = cut)) + geom_density()
+
+## Frequency plot in ggplot package
+ggplot(data = diamonds, aes(price)) + geom_freqpoly()
+
+## Frequency plot is visualized based on the cut (group)
+ggplot(data = diamonds, aes(price, color = cut)) + geom_freqpoly()
+
+
+## Histogram in lattice package. Price is visualized based on the cut of the diamonds. 
+histogram(~ price | factor(cut), data = diamonds)
+
+## Histogram using ggpubr package. Price is visualized based on cut of the diamonds.
+gghistogram(diamonds, x = "price",
+            add = "mean", rug = TRUE, color = "cut",
+            palette = c("red", "blue", "green", "brown", "violet"))
+
+## Densityplots using ggpubr package. Price is visualized based on cut of the diamonds.
+ggdensity(diamonds, x = "price",
+          add = "mean", rug = TRUE,
+          color = "cut",
+          palette = c("red", "blue", "green", "brown", "violet"))
+
+
+
+```
+
+
+
+
+## R Code for Discrete One Variable Visualization
+```{r Onevar, echo=TRUE, message=FALSE, warning=FALSE}
+ggplot(data = world, aes(dem_level4, fill = gdp_cap3)) + geom_bar() 
+
+       
+ggplot(data = world, aes(dem_level4, fill = regime_type3)) + geom_bar()
+
+## Facet Grid attachment to separate based on different regions
+ggplot(data = world, aes(dem_level4, fill = regime_type3)) + geom_bar() + facet_grid(regionun ~.)
+
+
+
+```
+
+## R Code for Two-variable visualization 
+```{r Twovar, echo=TRUE, message=FALSE, warning=FALSE}
+## Discrete variable (X) and continous variable (Y)
+## Boxplot Visualization. Gini Coefficient (inequality) (y-variable) visualized based on regime types (x-variable). 
+ggplot(data = world, aes(x = regime_type3, y = gini10, color = oecd)) + geom_boxplot() 
+
+ggplot(data = world, aes(x = dem_level4, y =  gini10, color = oecd)) + geom_boxplot() + coord_flip()
+
+
+bwplot(factor(dem_level4) ~ gini10 , data = world, xlab = "Gini Coefficient", col = "green", fill  = "blue")
+
+
+## Using the ggpubr package. 
+ggbarplot(data = world, x =  "dem_level4", y = "gini10", fill = "regime_type3", xlab = "Democracy Level", ylab = "Gini Coefficient", short.panel.labs= T)
+
+
+
+## Continuous variables on both axes. Levels of gini-coefficient (y) is visualized based on democracy score (x)
+
+ggplot(data = world, aes(x = dem_score14, y = gini10)) + geom_point()  
+
+ggplot(data = world, aes(x = dem_score14, y = gini10, color = gdp_cap3)) + geom_point() 
+
+ggplot(data = world , aes(x = dem_score14, y = gini10, color = gdp_cap3)) + geom_point() + facet_wrap(~regionun)
+
+## using Lattice package 
+xyplot(gini10~dem_score14 | regime_type3 , data = world, 
+       type = "h", xlab = "Democracy Levels")
+
+
+## Discrete variable (X) and Discrete variable (Y). Here regime type is visualized with GDP per capita. 
+ggplot(data = world, aes(x = dem_level4 , y = gdp_cap3, color = regime_type3)) + geom_count()  
+
+
+
+
+
+
+
+```
+
+
+## R Code for Correlation Relationships
+
+```{r Corrcode, echo=TRUE, message=FALSE, warning=FALSE}
+##. Correlation of numerical variables
+corr = cor(diamonds[, c(1, 5:7)])
+ggcorrplot(corr = corr)
+
+## using GGally package. The Bush approval ratings is used to visualize the possible correlations. 
+ggpairs(approval, columns = 7:11, ggplot2::aes(color=factor(X11.Sep)))
+
+```
+
+
+##. R Code for Regression Relationships
+
+```{r reg, echo=TRUE, message=FALSE, warning=FALSE, paged.print=TRUE}
+##using ggplot package for regression line fit
+ggplot(data = world, aes(x = dem_score14, y = gini10 )) + geom_point(na.rm = T) + geom_smooth(method = "lm", na.rm = T)  
+
+##using ggplot package for regression line fit (loess method)
+ggplot(data = world, aes(x = dem_score14, y = gini10)) + geom_point(na.rm = T) + geom_smooth(method = "loess", na.rm = T) 
+
+##using quantile regression estimation
+ggplot(data = world, aes(x = dem_score14, y = gini10)) +geom_point(na.rm = T) + geom_quantile(na.rm = T)
+
+
+```
+
+## Regression diagnostics using ggpubr and ggfortify 
+```{r regdiag, echo=TRUE, message=FALSE, warning=FALSE}
+## Using ggpubr package
+ggscatter(data = world, x = "dem_score14", y = "gini10",
+   color = "black", shape = 21, size = 3, # Points color, shape and size
+   add = "reg.line",  # Add regressin line
+   add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
+   conf.int = TRUE, # Add confidence interval
+   cor.coef = TRUE, # Add correlation coefficient. see ?stat_cor
+   cor.coeff.args = list(method = "pearson", label.x = 3, label.sep = "\n")
+   )
+
+##using ggeffects, ggfortify, and performance package to estimate and diagnosize the linearmodels
+##Model.1: predicting and diagonizing the generalized linear model
+m1 = lm(approve~gasprice + unemploy + katrina + lrgasprice, data = approval)
+autoplot(m1, which = 1:6, ncol = 3, label.size = 3)
+
+
+##Model.2: predicting and diagonizing the generalized linear model with addition of iraq invasion variable
+m2 = lm(approve~gasprice + unemploy + katrina + lrgasprice + iraqinvade, data = approval)
+autoplot(m2, which = 1:6, ncol = 3, label.size = 3)
+
+##Model.3: predicting and diagonizing the generalized linear model with control variables
+m3 = lm(approve~gasprice + unemploy + katrina + lrgasprice + iraqinvade + lcpifood + X11.Sep, data = approval)
+autoplot(m3, which = 1:6, ncol = 3, label.size = 3)
+
+## Coefficient estimates for various models
+g1 = ggcoef(m1, vline_color = "green", sort = "ascending", exclude_intercept = T)
+g2 = ggcoef(m2, vline_color = "blue", sort = "ascending", exclude_intercept = T)
+g3 = ggcoef(m3, vline_color = "red", sort = "ascending", exclude_intercept = T)
+
+grid.arrange(g1, g2, g3, nrow=3)
+```
+
+
